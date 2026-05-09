@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Peanut Butter Sundays</title>
+  <meta name="description" content="Get in touch with Peanut Butter Sundays. Volunteer, partner with us, or ask about the Impact Fund." />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 3px solid var(--black);
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      outline: none;
+      background: var(--white);
+      transition: border-color 0.15s;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus,
+    .contact-form select:focus {
+      border-color: var(--purple);
+    }
+    .contact-form textarea {
+      height: 140px;
+      resize: vertical;
+    }
+    .contact-form label {
+      display: block;
+      font-weight: 900;
+      font-size: 0.85rem;
+      color: var(--purple-dark);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <img src="/images/logo.png" alt="Peanut Butter Sundays logo" />
+      <span class="nav-logo-text">Peanut Butter<br>Sundays</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/about">About</a></li>
+      <li><a href="/#programs">Programs</a></li>
+      <li><a href="/donate" class="btn-nav-cta">Donate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background:var(--purple); padding:56px 24px;">
+  <div class="container-narrow">
+    <span style="font-family:'Nunito',sans-serif; font-weight:900; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--amber-light); display:block; margin-bottom:10px;">Get Involved</span>
+    <h1 style="font-size:4rem; color:var(--yellow); text-shadow:3px 3px 0 rgba(0,0,0,0.3); margin-bottom:14px;">Let's Connect</h1>
+    <p style="font-size:1.1rem; color:rgba(255,255,255,0.9); font-weight:600; max-width:500px;">
+      Whether you want to volunteer, partner with us, or learn more — we'd love to hear from you.
+    </p>
+  </div>
+</section>
+
+<!-- CONTACT SECTION -->
+<section class="section">
+  <div class="container" style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;">
+
+    <!-- Form -->
+    <div>
+      <h2 style="font-size:2.4rem; color:var(--purple); margin-bottom:24px;">Send Us a Message</h2>
+      <form class="contact-form" name="contact" method="POST" netlify netlify-honeypot="bot-field" action="/contact/thanks/">
+        <input type="hidden" name="form-name" value="contact" />
+        <p style="display:none;"><input name="bot-field" /></p>
+
+        <div>
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="name" placeholder="First and last name" required />
+        </div>
+
+        <div>
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="you@email.com" required />
+        </div>
+
+        <div>
+          <label for="reason">What brings you here?</label>
+          <select id="reason" name="reason">
+            <option value="">Select one...</option>
+            <option value="volunteer">I want to volunteer</option>
+            <option value="donate">Questions about donating</option>
+            <option value="impact-fund">Impact Fund / grants</option>
+            <option value="partnership">Corporate partnership</option>
+            <option value="media">Media / press inquiry</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Tell us what's on your mind..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; font-size:1.4rem;">Send Message</button>
+      </form>
+    </div>
+
+    <!-- Info cards -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="program-card">
+        <span class="program-icon">🥪</span>
+        <h3>Volunteer</h3>
+        <p>Join a sandwich run, help at an event, or bring your skills to the team. Fill out the form and we'll connect you.</p>
+      </div>
+      <div class="program-card">
+        <span class="program-icon">🏢</span>
+        <h3>Partner With Us</h3>
+        <p>Sponsor a program or event. We work with organizations that are serious about community in LA.</p>
+      </div>
+      <div class="program-card">
+        <span class="program-icon">🎓</span>
+        <h3>Impact Fund</h3>
+        <p>Apply for a micro-grant or scholarship through the PBS Impact Fund.</p>
+        <a href="https://forms.gle/TpRkMrCLJdpK8mLRA" target="_blank" rel="noopener" style="display:inline-block; margin-top:10px; font-weight:800; color:var(--purple); text-decoration:none;">Apply now →</a>
+      </div>
+      <div style="background:var(--yellow); border:3px solid var(--black); border-radius:16px; padding:22px; box-shadow:4px 4px 0 var(--black);">
+        <p style="font-family:'Bangers',cursive; font-size:1.3rem; color:var(--black); margin-bottom:4px;">Follow Along</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+          <a href="https://www.instagram.com/pbsundays" target="_blank" rel="noopener" class="btn btn-purple btn-sm">@pbsundays</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">Peanut Butter Sundays</div>
+      <p>Youth-founded 501(c)3 connecting housed and unhoused neighbors across Los Angeles since 2020.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="/about">About Us</a>
+      <a href="/#programs">Programs</a>
+      <a href="/donate">Donate</a>
+      <a href="/donate#impact-fund">Impact Fund</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://www.instagram.com/pbsundays" target="_blank" rel="noopener">Instagram @pbsundays</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Peanut Butter Sundays. All rights reserved. 501(c)3 Nonprofit.</p>
+    <p>Los Angeles, CA</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('navToggle').addEventListener('click', function() {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  (function() {
+    var beat = new Audio('/images/pbs-beat.m4a');
+    beat.loop = true;
+    var logo = document.querySelector('.nav-logo');
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (beat.paused) {
+        beat.play();
+        logo.style.opacity = '0.75';
+      } else {
+        beat.pause();
+        beat.currentTime = 0;
+        logo.style.opacity = '1';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

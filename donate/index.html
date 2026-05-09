@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate — Peanut Butter Sundays</title>
+  <meta name="description" content="Support Peanut Butter Sundays with a tax-deductible donation. Fund sandwich runs, community events, and youth grants across Los Angeles." />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .freq-toggle { display:flex; gap:8px; margin-bottom:20px; }
+    .freq-btn {
+      flex:1; padding:10px; text-align:center; border:2px solid var(--black);
+      border-radius:10px; font-family:'Nunito',sans-serif; font-weight:800;
+      font-size:0.95rem; cursor:pointer; background:var(--white); transition:background 0.15s;
+    }
+    .freq-btn.active { background:var(--purple); color:var(--white); }
+    .custom-amount {
+      width:100%; padding:14px 16px; border:3px solid var(--black); border-radius:12px;
+      font-family:'Bangers',cursive; font-size:1.8rem; color:var(--purple);
+      margin-top:4px; outline:none; text-align:center;
+    }
+    .custom-amount:focus { border-color:var(--purple); }
+    .donate-cta-btn {
+      display:block; width:100%; padding:18px; text-align:center;
+      background:var(--yellow); border:3px solid var(--black); border-radius:50px;
+      font-family:'Bangers',cursive; font-size:1.6rem; letter-spacing:0.06em;
+      color:var(--black); cursor:pointer; box-shadow:4px 4px 0 var(--black);
+      transition:transform 0.1s, box-shadow 0.1s; text-decoration:none;
+      margin-top:20px;
+    }
+    .donate-cta-btn:hover { background:var(--amber-light); transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--black); }
+    .tax-note { font-size:0.78rem; color:#888; font-weight:700; text-align:center; margin-top:12px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <img src="/images/logo.png" alt="Peanut Butter Sundays logo" />
+      <span class="nav-logo-text">Peanut Butter<br>Sundays</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/about">About</a></li>
+      <li><a href="/#programs">Programs</a></li>
+      <li><a href="/donate" class="btn-nav-cta">Donate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background:var(--amber); padding:56px 24px; border-bottom:3px solid var(--black);">
+  <div class="container-narrow text-center">
+    <span style="font-family:'Nunito',sans-serif; font-weight:900; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--white); display:block; margin-bottom:10px;">Support Our Work</span>
+    <h1 style="font-size:4rem; color:var(--white); text-shadow:3px 3px 0 var(--black); margin-bottom:14px;">Make Sundays Matter</h1>
+    <p style="font-size:1.1rem; font-weight:600; color:rgba(255,255,255,0.9); max-width:540px; margin:0 auto;">
+      Every dollar connects neighbors — funding sandwich runs, community festivals, and grants for young changemakers across LA.
+    </p>
+  </div>
+</section>
+
+<!-- DONATE + IMPACT FUND SECTION -->
+<section class="section">
+  <div class="container" style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+
+    <!-- Donation Widget -->
+    <div>
+      <h2 style="font-size:2.4rem; color:var(--purple); margin-bottom:24px;">Choose Your Amount</h2>
+
+      <div class="freq-toggle" id="freqToggle">
+        <button class="freq-btn active" data-freq="one-time">One-Time</button>
+        <button class="freq-btn" data-freq="monthly">Monthly</button>
+      </div>
+
+      <div class="donate-grid">
+        <div class="donate-amount" data-amount="10">
+          <span class="amount">$10</span>
+          <span class="desc">Makes ~20 sandwiches</span>
+        </div>
+        <div class="donate-amount" data-amount="20">
+          <span class="amount">$20</span>
+          <span class="desc">Supports a program day</span>
+        </div>
+        <div class="donate-amount" data-amount="30">
+          <span class="amount">$30</span>
+          <span class="desc">Covers event supplies</span>
+        </div>
+        <div class="donate-amount" data-amount="40">
+          <span class="amount">$40</span>
+          <span class="desc">Fund a weekly run</span>
+        </div>
+      </div>
+
+      <p style="font-size:0.85rem; font-weight:800; color:#888; margin:16px 0 6px; text-transform:uppercase; letter-spacing:0.06em;">Or enter a custom amount</p>
+      <input type="number" class="custom-amount" id="customAmount" placeholder="$" min="1" />
+
+      <a id="donateBtn" href="https://donate.stripe.com/placeholder" target="_blank" rel="noopener" class="donate-cta-btn">
+        Donate Now
+      </a>
+      <p class="tax-note">100% tax-deductible · 501(c)3 nonprofit · Secure checkout</p>
+
+      <div style="background:var(--cream); border:2px solid var(--black); border-radius:12px; padding:18px; margin-top:24px;">
+        <p style="font-size:0.88rem; font-weight:700; color:var(--purple-dark); margin-bottom:6px;">🥪 Where your money goes</p>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li style="font-size:0.83rem; color:#555; font-weight:600; padding:4px 0; border-bottom:1px solid rgba(0,0,0,0.07);">Sandwich ingredients & supplies</li>
+          <li style="font-size:0.83rem; color:#555; font-weight:600; padding:4px 0; border-bottom:1px solid rgba(0,0,0,0.07);">Community event production</li>
+          <li style="font-size:0.83rem; color:#555; font-weight:600; padding:4px 0; border-bottom:1px solid rgba(0,0,0,0.07);">Youth grant fund</li>
+          <li style="font-size:0.83rem; color:#555; font-weight:600; padding:4px 0;">Program operations</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Impact Fund -->
+    <div id="impact-fund">
+      <div class="impact-fund-box">
+        <span style="display:inline-block; background:var(--amber); color:var(--white); font-family:'Bangers',cursive; font-size:0.85rem; letter-spacing:0.1em; padding:4px 14px; border-radius:20px; border:2px solid rgba(255,255,255,0.3); margin-bottom:14px;">The PBS Impact Fund</span>
+        <h3>Youth Grants & Scholarships</h3>
+        <p>The PBS Impact Fund puts resources directly into the hands of young people building community. We offer two grant types for youth-led projects and education.</p>
+
+        <div class="fund-types">
+          <div class="fund-type">
+            <span class="fund-label">Micro Grants</span>
+            <span class="fund-amount">Up to $1K</span>
+            <p>For youth-led community projects that need seed funding to get started.</p>
+          </div>
+          <div class="fund-type">
+            <span class="fund-label">Impact Scholarships</span>
+            <span class="fund-amount">Up to $5K</span>
+            <p>For young people pursuing education or training in community service and leadership.</p>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:18px; margin-bottom:22px;">
+          <p style="font-size:0.88rem; color:rgba(255,255,255,0.9); font-weight:700; margin-bottom:8px;">Who can apply?</p>
+          <ul style="list-style:none; padding:0; margin:0;">
+            <li style="font-size:0.83rem; color:rgba(255,255,255,0.75); font-weight:600; padding:3px 0;">✓ Youth ages 14–24 in Los Angeles</li>
+            <li style="font-size:0.83rem; color:rgba(255,255,255,0.75); font-weight:600; padding:3px 0;">✓ Community-focused projects or education goals</li>
+            <li style="font-size:0.83rem; color:rgba(255,255,255,0.75); font-weight:600; padding:3px 0;">✓ No prior nonprofit experience required</li>
+          </ul>
+        </div>
+
+        <a
+          href="https://forms.gle/TpRkMrCLJdpK8mLRA"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+          style="display:inline-block;"
+        >
+          Apply for a Grant →
+        </a>
+      </div>
+
+      <div style="margin-top:20px; background:var(--cream); border:3px solid var(--black); border-radius:16px; padding:24px; box-shadow:4px 4px 0 var(--black);">
+        <p style="font-weight:900; color:var(--purple); margin-bottom:6px;">Want to fund the Impact Fund?</p>
+        <p style="font-size:0.88rem; color:#555; font-weight:600; margin-bottom:14px;">Donations specifically directed to the Impact Fund go directly to youth grants and scholarships.</p>
+        <a href="https://donate.stripe.com/placeholder?note=impact-fund" target="_blank" rel="noopener" class="btn btn-purple btn-sm">Donate to Impact Fund</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- OTHER WAYS TO HELP -->
+<section class="section section-cream">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">More Ways to Help</span>
+      <h2>Beyond Donating</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+      <div class="program-card">
+        <span class="program-icon">📣</span>
+        <h3>Spread the Word</h3>
+        <p>Follow <strong>@pbsundays</strong> on Instagram and tell people in your community about PBS.</p>
+      </div>
+      <div class="program-card">
+        <span class="program-icon">🤝</span>
+        <h3>Volunteer</h3>
+        <p>Join a sandwich run or help with an event. Reach out and we'll get you plugged in.</p>
+        <a href="/contact" style="display:inline-block; margin-top:12px; font-weight:800; color:var(--purple); text-decoration:none; font-size:0.9rem;">Contact us →</a>
+      </div>
+      <div class="program-card">
+        <span class="program-icon">🏢</span>
+        <h3>Corporate Partnership</h3>
+        <p>Sponsor a program, event, or the Impact Fund. We'd love to connect your team with the work.</p>
+        <a href="/contact" style="display:inline-block; margin-top:12px; font-weight:800; color:var(--purple); text-decoration:none; font-size:0.9rem;">Get in touch →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">Peanut Butter Sundays</div>
+      <p>Youth-founded 501(c)3 connecting housed and unhoused neighbors across Los Angeles since 2020.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="/about">About Us</a>
+      <a href="/#programs">Programs</a>
+      <a href="/donate">Donate</a>
+      <a href="/donate#impact-fund">Impact Fund</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://www.instagram.com/pbsundays" target="_blank" rel="noopener">Instagram @pbsundays</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Peanut Butter Sundays. All rights reserved. 501(c)3 Nonprofit.</p>
+    <p>Los Angeles, CA</p>
+  </div>
+</footer>
+
+<script>
+  // Nav toggle
+  document.getElementById('navToggle').addEventListener('click', function() {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  (function() {
+    var beat = new Audio('/images/pbs-beat.m4a');
+    beat.loop = true;
+    var logo = document.querySelector('.nav-logo');
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (beat.paused) {
+        beat.play();
+        logo.style.opacity = '0.75';
+      } else {
+        beat.pause();
+        beat.currentTime = 0;
+        logo.style.opacity = '1';
+      }
+    });
+  })();
+
+  // Frequency toggle
+  document.querySelectorAll('.freq-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Amount selection
+  let selectedAmount = 20;
+  document.querySelectorAll('.donate-amount').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.donate-amount').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      selectedAmount = parseInt(this.dataset.amount);
+      document.getElementById('customAmount').value = '';
+      updateDonateBtn();
+    });
+  });
+
+  document.getElementById('customAmount').addEventListener('input', function() {
+    document.querySelectorAll('.donate-amount').forEach(c => c.classList.remove('active'));
+    if (this.value) selectedAmount = parseInt(this.value);
+    updateDonateBtn();
+  });
+
+  function updateDonateBtn() {
+    // When Stripe/donation processor is set up, update URL with amount parameter
+    console.log('Selected amount: $' + selectedAmount);
+  }
+
+  // Set default active
+  document.querySelector('[data-amount="20"]').classList.add('active');
+</script>
+
+</body>
+</html>

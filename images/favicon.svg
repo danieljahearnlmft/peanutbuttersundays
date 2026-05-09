@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#6B3FA0"/>
+  <!-- Top bread slice -->
+  <rect x="5" y="8" width="22" height="5" rx="2.5" fill="#D4943A"/>
+  <!-- PB filling drip -->
+  <rect x="5" y="13" width="22" height="4" rx="1" fill="#F5C842"/>
+  <path d="M10 17 Q11 20 12 17" fill="#F5C842"/>
+  <path d="M15 17 Q16 21 17 17" fill="#F5C842"/>
+  <path d="M20 17 Q21 19 22 17" fill="#F5C842"/>
+  <!-- Bottom bread slice -->
+  <rect x="5" y="17" width="22" height="5" rx="2.5" fill="#D4943A"/>
+  <!-- Little heart accent -->
+  <path d="M15 5 C15 4 13.5 3 13 4.5 C12.5 6 15 7.5 15 7.5 C15 7.5 17.5 6 17 4.5 C16.5 3 15 4 15 5Z" fill="#F5C842"/>
+</svg>
