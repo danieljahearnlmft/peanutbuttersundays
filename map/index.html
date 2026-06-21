@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Unhoused Need Your Help. Peanut Butter Sundays</title>
+  <meta name="description" content="Interactive map showing the scale of homelessness across Los Angeles neighborhoods. Learn the numbers and take action: donate or volunteer with Peanut Butter Sundays." />
+  <meta property="og:title" content="The Unhoused Need Your Help. Peanut Butter Sundays" />
+  <meta property="og:description" content="See the scale of the crisis across LA and take action. Donate or volunteer with Peanut Butter Sundays." />
+  <meta property="og:image" content="https://peanutbuttersundays.netlify.app/images/logo.png" />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    .map-hero {
+      background: var(--purple);
+      padding: 64px 24px 48px;
+      text-align: center;
+      border-bottom: 3px solid var(--black);
+    }
+
+    .map-container {
+      width: 100%;
+      min-height: 70vh;
+      height: 600px;
+      border: 3px solid var(--black);
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--black);
+      overflow: hidden;
+    }
+
+    .map-section {
+      padding: 48px 24px 80px;
+      background: var(--cream);
+    }
+
+    .map-section .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .map-intro-text {
+      max-width: 640px;
+      margin: 0 auto 28px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.7;
+    }
+
+    .leaflet-container { background: #EFE6F7 !important; }
+    .leaflet-tile-pane { filter: grayscale(100%) brightness(1.12) contrast(0.8); }
+
+    .region-label {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #3D1E66;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 12px;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    .leaflet-tooltip.region-label::before { display: none; }   /* kill the little arrow */
+
+    .leaflet-popup-content {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .leaflet-popup-content strong {
+      font-family: 'Bangers', cursive;
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      color: var(--purple);
+    }
+
+    .popup-count {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--amber);
+      display: block;
+      margin: 4px 0;
+    }
+
+    .popup-source {
+      font-size: 0.72rem;
+      color: #888;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 18px;
+      right: 18px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.94);
+      padding: 12px 14px 10px;
+      border-radius: 10px;
+      border: 2px solid var(--black);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #555;
+      max-width: 240px;
+    }
+
+    .legend-title {
+      font-family: 'Bangers', cursive;
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      color: var(--purple);
+      margin-bottom: 8px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+    }
+
+    .legend-swatch {
+      width: 18px;
+      height: 12px;
+      flex: 0 0 auto;
+      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+
+    .legend-row span {
+      font-size: 0.72rem;
+      color: #555;
+      font-weight: 700;
+    }
+
+    /* --- "CLICK FOR DATA" PILL --- */
+    .map-cta-pill {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 1000;
+      background: #FFF9ED;
+      color: #6B3FA0;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 8px 15px;
+      border-radius: 999px;
+      border: 2px solid #6B3FA0;
+      box-shadow: 0 0 0 0 rgba(107,63,160,0.5);
+      animation: pillPulse 2s infinite;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .map-cta-pill.hide {
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+    }
+
+    @keyframes pillPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(107,63,160,0.45); }
+      70%  { box-shadow: 0 0 0 12px rgba(107,63,160,0); }
+      100% { box-shadow: 0 0 0 0 rgba(107,63,160,0); }
+    }
+
+    /* --- REGION DETAIL PANEL --- */
+    .region-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 380px;
+      max-width: 90vw;
+      height: 100vh;
+      background: #FFF9ED;
+      border-left: 3px solid var(--black);
+      box-shadow: -6px 0 24px rgba(0,0,0,0.22);
+      z-index: 4000;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .region-panel.open { transform: translateX(0); }
+
+    .region-panel-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      line-height: 1;
+      color: #6B3FA0;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .region-panel-body {
+      padding: 30px 26px 44px;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .rp-name {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      color: #6B3FA0;
+      margin: 0 30px 14px 0;
+      line-height: 1.05;
+    }
+
+    .rp-bignum {
+      font-family: 'Bangers', cursive;
+      font-size: 2.9rem;
+      letter-spacing: 0.02em;
+      color: #3D1E66;
+      line-height: 1;
+    }
+
+    .rp-pct {
+      font-weight: 700;
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin: 8px 0 24px;
+    }
+
+    .rp-subhead {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #6B3FA0;
+      font-size: 1.05rem;
+      margin: 0 0 8px;
+    }
+
+    .rp-areas, .rp-county {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 18px;
+    }
+
+    .rp-areas li {
+      font-weight: 700;
+      color: #333;
+      padding: 4px 0 4px 18px;
+      position: relative;
+    }
+
+    .rp-areas li::before {
+      content: '\2022';
+      color: #6B3FA0;
+      position: absolute;
+      left: 2px;
+    }
+
+    .rp-divider {
+      border: none;
+      border-top: 2px solid rgba(107,63,160,0.25);
+      margin: 6px 0 18px;
+    }
+
+    .rp-county li {
+      color: #333;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(107,63,160,0.12);
+    }
+
+    .rp-sources {
+      font-size: 0.72rem;
+      color: #888;
+      font-weight: 600;
+      line-height: 1.45;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .region-panel {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 82vh;
+        border-left: none;
+        border-top: 3px solid var(--black);
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -6px 24px rgba(0,0,0,0.22);
+        transform: translateY(100%);
+      }
+      .region-panel.open { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <img src="/images/logo.png" alt="Peanut Butter Sundays logo" />
+      <span class="nav-logo-text">Peanut Butter<br>Sundays</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/about">About</a></li>
+      <li><a href="/map">Map</a></li>
+      <li><a href="/#programs">Programs</a></li>
+      <li><a href="/donate" class="btn-nav-cta">Donate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- MARQUEE -->
+<div class="marquee-bar">
+  <div class="marquee-track">
+    <span class="marquee-item">EMPOWERING CHANGE</span>
+    <span class="marquee-item">BY TEENS</span>
+    <span class="marquee-item">WITH TEENS</span>
+    <span class="marquee-item">FOR THE WORLD</span>
+    <span class="marquee-item">LOS ANGELES</span>
+    <span class="marquee-item">SINCE 2020</span>
+    <span class="marquee-item">NO NEIGHBOR LEFT BEHIND</span>
+    <span class="marquee-item">EMPOWERING CHANGE</span>
+    <span class="marquee-item">BY TEENS</span>
+    <span class="marquee-item">WITH TEENS</span>
+    <span class="marquee-item">FOR THE WORLD</span>
+    <span class="marquee-item">LOS ANGELES</span>
+    <span class="marquee-item">SINCE 2020</span>
+    <span class="marquee-item">NO NEIGHBOR LEFT BEHIND</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="map-hero">
+  <div class="container-narrow">
+    <div class="hero-badge" style="margin-bottom:16px;">
+      <span class="dot"></span>
+      THE CRISIS
+    </div>
+    <h1 style="font-size:3.8rem; color:var(--yellow); text-shadow:3px 3px 0 rgba(0,0,0,0.3); margin-bottom:20px; line-height:0.95;">The unhoused need your help.</h1>
+    <p class="map-intro-text">
+      In 2025, an estimated 72,195 people were experiencing homelessness across Los Angeles County, 43,695 in the City of LA alone. Peanut Butter Sundays has shown up every week across LA since 2020, serving Skid Row, Hollywood, Venice, and neighborhoods throughout the county. See where the need is greatest. Then be part of the solution.
+    </p>
+    <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+      <a href="/donate" class="btn btn-primary">Donate Now</a>
+      <a href="/contact" class="btn btn-white">Volunteer</a>
+    </div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section class="map-section" aria-label="Interactive map showing homelessness data across Los Angeles neighborhoods">
+  <div class="container">
+    <div id="map" class="map-container" aria-label="Choropleth map of Los Angeles regions shaded by the number of people experiencing homelessness." style="position:relative;">
+      <div class="map-cta-pill" id="mapCtaPill">Click any region for the data</div>
+      <div class="map-legend" aria-label="Map legend">
+        <div class="legend-title">People experiencing homelessness by LA region, 2025 LAHSA count</div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#E4D2F4;"></span><span>Under 5,000</span></div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#C6A6E3;"></span><span>5,000–6,000</span></div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#A87FD0;"></span><span>6,000–9,000</span></div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#8B5FBF;"></span><span>9,000–12,000</span></div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#6B34A0;"></span><span>12,000–15,000</span></div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#4E2484;"></span><span>15,000+</span></div>
+      </div>
+    </div>
+    <p style="text-align:center; margin-top:18px; font-size:0.8rem; font-weight:600; color:#888;">
+      Source: 2025 LAHSA Greater Los Angeles Homeless Count.
+    </p>
+    <p style="text-align:center; margin-top:8px; font-size:0.85rem; font-weight:600; color:#888; max-width:640px; margin-left:auto; margin-right:auto;">
+      Youth-founded 501(c)3. Empowering teens to build community across Los Angeles since 2020. By teens. For the world.
+    </p>
+  </div>
+</section>
+
+<!-- REGION DETAIL PANEL -->
+<aside id="regionPanel" class="region-panel" role="dialog" aria-modal="false" aria-label="Region homelessness details" aria-hidden="true">
+  <button class="region-panel-close" id="regionPanelClose" aria-label="Close panel">&times;</button>
+  <div class="region-panel-body">
+    <h2 class="rp-name" id="rpName"></h2>
+    <div class="rp-bignum" id="rpBignum"></div>
+    <div class="rp-pct" id="rpPct"></div>
+    <h3 class="rp-subhead">Areas that need the most help</h3>
+    <ul class="rp-areas" id="rpAreas"></ul>
+    <hr class="rp-divider" />
+    <h3 class="rp-subhead">Across Los Angeles County</h3>
+    <ul class="rp-county" id="rpCounty"></ul>
+    <p class="rp-sources">Sources: 2025 LAHSA Greater LA Homeless Count; LA County Dept. of Public Health 2024 Homeless Mortality Report; LA County Homeless Initiative.</p>
+  </div>
+</aside>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">Peanut Butter Sundays</div>
+      <p>Youth-founded 501(c)3. Empowering teens to build community across Los Angeles since 2020. By teens. For the world.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="/about">About Us</a>
+      <a href="/map">The Map</a>
+      <a href="/#programs">Programs</a>
+      <a href="/donate">Donate</a>
+      <a href="/donate#impact-fund">Impact Fund</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://www.instagram.com/pbsundays" target="_blank" rel="noopener">Instagram @pbsundays</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Peanut Butter Sundays. All rights reserved. 501(c)3 Nonprofit.</p>
+    <p>Los Angeles, CA</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  // --- NAV TOGGLE ---
+  document.getElementById('navToggle').addEventListener('click', function() {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  // --- PBS BEAT AUDIO ---
+  (function() {
+    var beat = new Audio('/images/pbs-beat.m4a');
+    beat.loop = true;
+    var logo = document.querySelector('.nav-logo');
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (beat.paused) {
+        beat.play();
+        logo.style.opacity = '0.75';
+      } else {
+        beat.pause();
+        beat.currentTime = 0;
+        logo.style.opacity = '1';
+      }
+    });
+  })();
+
+  // --- LEAFLET MAP ---
+  const laBounds = L.latLngBounds([33.65, -118.95], [34.85, -117.60]);
+  var map = L.map('map', {
+    zoomControl: false,
+    minZoom: 9,
+    maxZoom: 12,
+    maxBounds: laBounds,
+    maxBoundsViscosity: 1.0,
+    scrollWheelZoom: false
+  });
+  map.setMaxBounds(laBounds);
+
+  // CARTO Positron no-labels base map, faint under the regions
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    opacity: 0.35,
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+
+  // --- CHOROPLETH DATA ---
+  // 2025 LAHSA homeless count by Service Planning Area (SPA). Source: https://www.lahsa.org/homeless-count/
+  const COUNTS = { 1:6753, 2:10766, 3:4485, 4:16955, 5:5029, 6:13587, 7:4778, 8:5424 };
+
+  const REGION_DATA = {
+    1: { name:"Antelope Valley", total:6753, areas:["Lancaster","Palmdale"] },
+    2: { name:"San Fernando Valley", total:10766, areas:["North Hollywood","Van Nuys","Sun Valley","Canoga Park"] },
+    3: { name:"San Gabriel Valley", total:4485, areas:["Pomona","El Monte","Pasadena"] },
+    4: { name:"Metro / Central LA", total:16955, areas:["Skid Row / Downtown","Hollywood","Koreatown","Westlake / MacArthur Park","Echo Park"] },
+    5: { name:"West LA", total:5029, areas:["Venice","West LA","Mar Vista"] },
+    6: { name:"South LA", total:13587, areas:["South Central","Watts","Florence-Firestone","Vermont-Slauson"] },
+    7: { name:"East LA County", total:4778, areas:["Boyle Heights","El Monte","Pomona","Whittier"] },
+    8: { name:"South Bay / Harbor", total:5424, areas:["San Pedro","Wilmington","Harbor Gateway","Long Beach"] }
+  };
+  const COUNTY_TOTAL = 72195;
+  const COUNTY_STATS = [
+    "72,195 people were experiencing homelessness in LA County in 2025.",
+    "66% of them, about 47,450 people, were unsheltered: living on sidewalks, in cars, tents, and RVs.",
+    "2,208 unhoused people died in LA County in 2024, roughly 6 every day.",
+    "Drug and alcohol overdose caused 40% of those deaths.",
+    "Black residents are 32% of the homeless population but only 8% of the county.",
+    "41% are chronically homeless. 24% live with serious mental illness.",
+    "38% have experienced domestic violence. 9% are children under 18.",
+    "LA County faces a $300 million homelessness budget shortfall heading into next year.",
+    "A 2025 court-ordered audit found LA could not properly account for $2.3 billion in homeless spending."
+  ];
+
+  function getColor(c){
+    return c > 15000 ? '#4E2484' :
+           c > 12000 ? '#6B34A0' :
+           c >  9000 ? '#8B5FBF' :
+           c >  6000 ? '#A87FD0' :
+           c >  5000 ? '#C6A6E3' :
+                       '#E4D2F4';
+  }
+
+  function styleRegion(feature) {
+    var spaNum = feature.properties.SPA_NUM;
+    return {
+      fillColor: getColor(COUNTS[spaNum]),
+      fillOpacity: 0.85,
+      weight: 2,
+      color: '#FFFFFF',   // white borders between regions
+      opacity: 1
+    };
+  }
+
+  function onEachRegion(feature, layer) {
+    var spaNum = feature.properties.SPA_NUM;
+
+    layer.on({
+      click: function() {
+        openRegionPanel(spaNum);
+      },
+      mouseover: function(e) {
+        var l = e.target;
+        l.setStyle({ weight: 3 });
+        l.bringToFront();
+      },
+      mouseout: function(e) {
+        regions.resetStyle(e.target);
+      }
+    });
+  }
+
+  // Load region polygons and render the choropleth
+  var regions;
+  fetch('/map/spa-boundaries.geojson')
+    .then(function(response) {
+      if (!response.ok) throw new Error('GeoJSON fetch failed');
+      return response.json();
+    })
+    .then(function(data) {
+      const layer = L.geoJSON(data, {
+        style: styleRegion,
+        onEachFeature: onEachRegion
+      }).addTo(map);
+      regions = layer;
+
+      // Frame all 8 regions
+      map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+
+      // Fixed mainland label positions (polygon centers fall in the ocean for island regions).
+      const LABELS = {
+        1: { text:"Antelope Valley", at:[34.69,-118.13] },
+        2: { text:"San Fernando",    at:[34.20,-118.45] },
+        3: { text:"San Gabriel",     at:[34.10,-117.90] },
+        4: { text:"Metro",           at:[34.07,-118.30] },
+        5: { text:"West LA",         at:[34.02,-118.46] },
+        6: { text:"South LA",        at:[33.95,-118.28] },
+        7: { text:"East LA",         at:[33.99,-117.98] },
+        8: { text:"South Bay / Harbor", at:[33.80,-118.29] }
+      };
+      Object.values(LABELS).forEach(function(l) {
+        L.tooltip({ permanent:true, direction:'center', className:'region-label', interactive:false })
+          .setLatLng(l.at).setContent(l.text).addTo(map);
+      });
+    })
+    .catch(function(err) {
+      console.warn('Could not load SPA boundaries GeoJSON:', err);
+    });
+
+  // --- REGION DETAIL PANEL ---
+  var panel = document.getElementById('regionPanel');
+  var pill = document.getElementById('mapCtaPill');
+
+  // County stats are the same for every region, so render once.
+  (function() {
+    var ul = document.getElementById('rpCounty');
+    COUNTY_STATS.forEach(function(stat) {
+      var li = document.createElement('li');
+      li.textContent = stat;
+      ul.appendChild(li);
+    });
+  })();
+
+  function openRegionPanel(n) {
+    var d = REGION_DATA[n];
+    if (!d) return;
+
+    document.getElementById('rpName').textContent = d.name;
+    document.getElementById('rpBignum').textContent = d.total.toLocaleString() + ' people';
+    document.getElementById('rpPct').textContent =
+      Math.round(d.total / COUNTY_TOTAL * 100) + '% of everyone experiencing homelessness in LA County';
+
+    var areas = document.getElementById('rpAreas');
+    areas.innerHTML = '';
+    d.areas.forEach(function(a) {
+      var li = document.createElement('li');
+      li.textContent = a;
+      areas.appendChild(li);
+    });
+
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    pill.classList.add('hide');
+  }
+
+  function closeRegionPanel() {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  document.getElementById('regionPanelClose').addEventListener('click', closeRegionPanel);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeRegionPanel();
+  });
+</script>
+
+</body>
+</html>
