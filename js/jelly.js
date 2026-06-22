@@ -144,11 +144,16 @@
   // When the on-screen keyboard opens it shrinks the *visual* viewport but not
   // the *layout* viewport, and position:fixed elements stay anchored to the
   // layout viewport. On iOS Safari the layout viewport is also scrolled
-  // (visualViewport.offsetTop > 0), so a fixed top:0 panel ends up floating
-  // above the visible area — the input bar slides into the middle and the page
-  // shows through below. Fix: pin the panel to the visual viewport explicitly,
-  // using offsetTop/offsetLeft + width/height, and keep it pinned on every
-  // resize/scroll of the visual viewport.
+  // (visualViewport.offsetTop > 0), so a fixed top:0 panel keeps its full
+  // 100dvh height and floats above the visible area — the input bar slides
+  // into the middle and the page shows through below.
+  //
+  // Fix: pin the panel to the *visual* viewport using the canonical MDN
+  // pattern — size it to visualViewport.width/height and offset it with a
+  // transform of (offsetLeft, offsetTop). A transform is more reliable than
+  // setting top/left on iOS, where fixed-element insets misbehave while the
+  // keyboard is up. Re-applied on every visualViewport resize/scroll so the
+  // panel tracks the keyboard as it animates in and out.
   function fitToViewport() {
     var vv = window.visualViewport;
     if (!vv) return;
@@ -160,22 +165,27 @@
     // Only act while the panel is actually open.
     if (!panel.classList.contains("jelly-open")) return;
 
-    panel.style.top = vv.offsetTop + "px";
-    panel.style.left = vv.offsetLeft + "px";
     panel.style.width = vv.width + "px";
     panel.style.height = vv.height + "px";
-    panel.style.bottom = "auto";
-    panel.style.right = "auto";
+    panel.style.transform =
+      "translate(" + vv.offsetLeft + "px, " + vv.offsetTop + "px)";
     scrollToBottom();
   }
 
   function clearPanelInlineLayout() {
-    panel.style.top = "";
-    panel.style.left = "";
-    panel.style.right = "";
-    panel.style.bottom = "";
     panel.style.width = "";
     panel.style.height = "";
+    panel.style.transform = "";
+  }
+
+  // iOS doesn't always report final viewport geometry on the first resize event
+  // (the keyboard animates over ~250ms). Re-fit a few times after open/rotate so
+  // the panel settles to the correct size once the keyboard finishes animating.
+  function refitSoon() {
+    fitToViewport();
+    [60, 180, 320, 500].forEach(function (ms) {
+      window.setTimeout(fitToViewport, ms);
+    });
   }
 
   function attachViewportFit() {
@@ -193,7 +203,10 @@
     };
     window.visualViewport.addEventListener("resize", vvHandler);
     window.visualViewport.addEventListener("scroll", vvHandler);
-    fitToViewport();
+    // Re-fit when the focused field changes or the device rotates.
+    window.addEventListener("orientationchange", refitSoon);
+    inputEl.addEventListener("focus", refitSoon);
+    refitSoon();
   }
 
   function detachViewportFit() {
@@ -201,6 +214,8 @@
       window.visualViewport.removeEventListener("resize", vvHandler);
       window.visualViewport.removeEventListener("scroll", vvHandler);
     }
+    window.removeEventListener("orientationchange", refitSoon);
+    inputEl.removeEventListener("focus", refitSoon);
     vvHandler = null;
     // Reset any inline sizing so desktop / next open starts clean.
     clearPanelInlineLayout();
