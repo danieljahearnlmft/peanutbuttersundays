@@ -96,6 +96,8 @@
     panel.classList.add("jelly-open");
     panel.setAttribute("aria-hidden", "false");
     launcher.classList.add("jelly-hidden");
+    // Lock background scroll while the panel is open.
+    document.body.classList.add("jelly-open");
 
     // Greeting on first open.
     if (!messagesEl.hasChildNodes()) {
@@ -108,6 +110,8 @@
     panel.classList.remove("jelly-open");
     panel.setAttribute("aria-hidden", "true");
     launcher.classList.remove("jelly-hidden");
+    // Restore background scroll.
+    document.body.classList.remove("jelly-open");
     launcher.focus();
   }
 
