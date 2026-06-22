@@ -326,20 +326,19 @@
 
 /* ===== Mobile ===== */
 @media (max-width: 600px) {
-  /* Lock background scroll while the full-screen panel is open
-     (class set on <body> by the widget). Desktop is left unchanged. */
-  body.jelly-open {
-    position: fixed;
-    width: 100%;
+  /* Lock the page behind the full-screen panel. overflow:hidden is enough — the
+     opaque panel covers everything, so there's nothing to scroll or show
+     through. No position:fixed body hack (that was the bug). */
+  html.jelly-lock,
+  html.jelly-lock body {
     overflow: hidden;
   }
 
-  /* Full-screen panel: fixed to the visible viewport, flex column so only the
-     message area scrolls. 100dvh is the no-JS fallback; when visualViewport is
-     available the widget pins top/left/width/height to the visual viewport in
-     JS so the panel fills exactly the area above the on-screen keyboard.
-     Anchored with top/left (not bottom) so the JS overrides don't fight a
-     bottom:0 rule. */
+  /* Full-screen panel, flex column so only the message area scrolls. 100dvh is
+     the no-JS / Android fallback (with interactive-widget=resizes-content the
+     keyboard shrinks the layout viewport, so this fits natively). On iOS the JS
+     pins width/height to the visual viewport and offsets with a translate()
+     transform so the panel fills exactly the area above the keyboard. */
   .jelly-panel {
     position: fixed;
     top: 0;
@@ -352,8 +351,6 @@
     border-radius: 0;
     border: none;
     box-shadow: none;
-    /* JS pins the panel to the visual viewport via a translate() transform;
-       anchor the transform to the top-left corner. */
     transform-origin: 0 0;
   }
 
@@ -367,19 +364,17 @@
   .jelly-messages {
     flex: 1;
     overflow-y: auto;
-    /* Don't let message-list scrolling chain to the page behind the panel. */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-  }
-
-  /* Hide the launcher while the full-screen panel is open so it can't overlap
-     the close button. */
-  body.jelly-open .jelly-launcher {
-    display: none;
   }
 
   .jelly-launcher {
     right: 16px;
     bottom: 16px;
+  }
+
+  /* Hide the launcher while the panel is open so it can't overlap the close button. */
+  html.jelly-lock .jelly-launcher {
+    display: none;
   }
 }

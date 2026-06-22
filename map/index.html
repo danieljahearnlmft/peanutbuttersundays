@@ -336,6 +336,106 @@
       margin-top: 20px;
     }
 
+    /* --- IMPACT CALCULATOR --- */
+    .rp-impact {
+      background: #F3E9FF;
+      border: 2px solid #6B3FA0;
+      border-radius: 14px;
+      padding: 16px 16px 18px;
+      margin: 4px 0 24px;
+    }
+    .rp-impact .rp-subhead { margin-bottom: 4px; }
+    .rp-impact-lead {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #555;
+      margin: 0 0 14px;
+      line-height: 1.4;
+    }
+    .rp-impact-lead span { color: #6B3FA0; }
+    .rp-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #D9C2F0;
+      outline: none;
+      margin: 0 0 16px;
+    }
+    .rp-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--yellow);
+      border: 3px solid #1A1A1A;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+    .rp-slider::-moz-range-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--yellow);
+      border: 3px solid #1A1A1A;
+      cursor: pointer;
+    }
+    .rp-impact-headline {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .rp-impact-num {
+      font-family: 'Bangers', cursive;
+      font-size: 2.6rem;
+      letter-spacing: 0.02em;
+      color: #3D1E66;
+      line-height: 1;
+      display: inline-block;
+    }
+    .rp-impact-num.pulse { animation: impactPulse 0.3s ease; }
+    @keyframes impactPulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18); color: #6B3FA0; }
+      100% { transform: scale(1); }
+    }
+    .rp-impact-unit {
+      font-weight: 800;
+      color: #6B3FA0;
+      font-size: 0.9rem;
+    }
+    .rp-impact-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #D9C2F0;
+      overflow: hidden;
+      border: 1px solid rgba(107,63,160,0.3);
+      margin-bottom: 12px;
+    }
+    .rp-impact-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8B5FBF, #F5C842);
+      transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+    .rp-impact-reward {
+      font-weight: 800;
+      color: #3D1E66;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      margin: 0 0 16px;
+      min-height: 2.7em;
+    }
+    .rp-impact-cta {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
     @media (max-width: 640px) {
       .region-panel {
         top: auto;
@@ -449,6 +549,21 @@
     <h2 class="rp-name" id="rpName"></h2>
     <div class="rp-bignum" id="rpBignum"></div>
     <div class="rp-pct" id="rpPct"></div>
+
+    <!-- IMPACT CALCULATOR -->
+    <div class="rp-impact">
+      <h3 class="rp-subhead">Your impact, right now 💥</h3>
+      <p class="rp-impact-lead">Drag to see what your meal drop would do in <span id="rpImpactRegion">this area</span>.</p>
+      <input type="range" id="rpMeals" class="rp-slider" min="10" max="2000" step="10" value="120" aria-label="Number of meals to bring" />
+      <div class="rp-impact-headline">
+        <span class="rp-impact-num" id="rpMealsNum">120</span>
+        <span class="rp-impact-unit">meals · <span id="rpMealsCost">$240</span></span>
+      </div>
+      <div class="rp-impact-bar"><div class="rp-impact-fill" id="rpImpactFill"></div></div>
+      <p class="rp-impact-reward" id="rpImpactReward"></p>
+      <a href="/donate" class="btn btn-primary rp-impact-cta" id="rpImpactCta">Fund 120 meals →</a>
+    </div>
+
     <h3 class="rp-subhead">Areas that need the most help</h3>
     <ul class="rp-areas" id="rpAreas"></ul>
     <hr class="rp-divider" />
@@ -663,10 +778,62 @@
       areas.appendChild(li);
     });
 
+    impactRegionName = d.name;
+    impactRegionTotal = d.total;
+    renderImpact();
+
     panel.classList.add('open');
     panel.setAttribute('aria-hidden', 'false');
     pill.classList.add('hide');
   }
+
+  // --- IMPACT CALCULATOR ---
+  // Show what a meal drop does in the open region: $2/meal, one hot meal per
+  // person, progress bar vs. the region's unhoused count, escalating reward copy.
+  var COST_PER_MEAL = 2;
+  var mealsSlider = document.getElementById('rpMeals');
+  var impactRegionTotal = COUNTY_TOTAL;
+  var impactRegionName = 'this area';
+
+  var IMPACT_TIERS = [
+    { p: 0,  msg: function(m, r){ return 'A hot meal for ' + m + ' neighbors. Every single one matters. 🥪'; } },
+    { p: 2,  msg: function(m, r){ return m + ' meals — a whole block eats tonight. People feel this. 🙌'; } },
+    { p: 5,  msg: function(m, r){ return 'A full encampment, fed in one drop. You’re the reason. 🌟'; } },
+    { p: 10, msg: function(m, r){ return 'Real scale now — hundreds reached across ' + r + '. 🔥'; } },
+    { p: 25, msg: function(m, r){ return 'Huge. A massive share of ' + r + ' covered by you alone. 💜'; } },
+    { p: 50, msg: function(m, r){ return 'Legendary. You’d feed half of ' + r + ' in a single day. 🏆'; } }
+  ];
+
+  function pickTier(pct) {
+    var tier = IMPACT_TIERS[0];
+    for (var i = 0; i < IMPACT_TIERS.length; i++) {
+      if (pct >= IMPACT_TIERS[i].p) tier = IMPACT_TIERS[i];
+    }
+    return tier;
+  }
+
+  function renderImpact() {
+    var meals = parseInt(mealsSlider.value, 10);
+    var pct = Math.min(100, meals / impactRegionTotal * 100);
+    var numEl = document.getElementById('rpMealsNum');
+
+    numEl.textContent = meals.toLocaleString();
+    document.getElementById('rpMealsCost').textContent = '$' + (meals * COST_PER_MEAL).toLocaleString();
+    document.getElementById('rpImpactFill').style.width = pct + '%';
+    document.getElementById('rpImpactRegion').textContent = impactRegionName;
+    document.getElementById('rpImpactCta').textContent = 'Fund ' + meals.toLocaleString() + ' meals →';
+    document.getElementById('rpImpactReward').textContent = pickTier(pct).msg(meals.toLocaleString(), impactRegionName);
+
+    // Re-trigger the pulse animation on the number.
+    numEl.classList.remove('pulse');
+    void numEl.offsetWidth;
+    numEl.classList.add('pulse');
+  }
+
+  mealsSlider.addEventListener('input', renderImpact);
+
+  // ponytail self-check: tier picks the highest threshold <= pct, math is sane.
+  console.assert(pickTier(0).p === 0 && pickTier(3).p === 2 && pickTier(99).p === 50, 'impact tiers');
 
   function closeRegionPanel() {
     panel.classList.remove('open');
