@@ -1,0 +1,346 @@
+/* Jelly — chat widget for Peanut Butter Sundays.
+   Matches the site brand: purple #6B3FA0, cream #FFF9ED,
+   Bangers (headings) + Nunito (body), chunky black borders + offset shadows. */
+
+:root {
+  --jelly-purple: #6B3FA0;
+  --jelly-purple-dark: #4E2D78;
+  --jelly-yellow: #F5C842;
+  --jelly-amber: #D4943A;
+  --jelly-black: #1A1A1A;
+  --jelly-cream: #FFF9ED;
+  --jelly-white: #FFFFFF;
+}
+
+/* ===== Floating launcher button ===== */
+.jelly-launcher {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Bangers', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  color: var(--jelly-white);
+  background: var(--jelly-purple);
+  border: 3px solid var(--jelly-black);
+  border-radius: 50px;
+  padding: 12px 20px 12px 16px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--jelly-black);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+}
+
+.jelly-launcher:hover {
+  background: var(--jelly-purple-dark);
+}
+
+.jelly-launcher:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--jelly-black);
+}
+
+.jelly-launcher:focus-visible {
+  outline: 3px solid var(--jelly-yellow);
+  outline-offset: 2px;
+}
+
+.jelly-launcher .jelly-launcher-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Hide the launcher while the panel is open. */
+.jelly-launcher.jelly-hidden {
+  display: none;
+}
+
+/* ===== Chat panel ===== */
+.jelly-panel {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1001;
+  width: 370px;
+  max-width: calc(100vw - 32px);
+  height: 560px;
+  max-height: calc(100vh - 44px);
+  display: none;
+  flex-direction: column;
+  background: var(--jelly-cream);
+  border: 3px solid var(--jelly-black);
+  border-radius: 18px;
+  box-shadow: 8px 8px 0 var(--jelly-black);
+  overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+}
+
+.jelly-panel.jelly-open {
+  display: flex;
+}
+
+/* Header */
+.jelly-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--jelly-purple);
+  color: var(--jelly-white);
+  padding: 14px 16px;
+  border-bottom: 3px solid var(--jelly-black);
+}
+
+.jelly-header-avatar {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.jelly-header-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.jelly-header-title .jelly-name {
+  font-family: 'Bangers', cursive;
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  color: var(--jelly-yellow);
+}
+
+.jelly-header-title .jelly-sub {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.jelly-close {
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: var(--jelly-white);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.jelly-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--jelly-white);
+}
+
+.jelly-close:focus-visible {
+  outline: 3px solid var(--jelly-yellow);
+  outline-offset: 2px;
+}
+
+/* Consent / fine-print notice — pinned under the header, above messages */
+.jelly-consent {
+  flex-shrink: 0;
+  background: var(--jelly-cream);
+  color: var(--jelly-purple-dark);
+  opacity: 0.85;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(107, 63, 160, 0.18);
+}
+
+.jelly-consent a {
+  color: var(--jelly-purple);
+  text-decoration: underline;
+}
+
+.jelly-consent a:hover {
+  color: var(--jelly-purple-dark);
+}
+
+/* Message area */
+.jelly-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jelly-msg {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.jelly-msg-bot {
+  align-self: flex-start;
+  background: var(--jelly-white);
+  color: var(--jelly-black);
+  border: 2px solid var(--jelly-black);
+  border-bottom-left-radius: 4px;
+}
+
+.jelly-msg-user {
+  align-self: flex-end;
+  background: var(--jelly-purple);
+  color: var(--jelly-white);
+  border: 2px solid var(--jelly-black);
+  border-bottom-right-radius: 4px;
+}
+
+/* Typing indicator */
+.jelly-typing {
+  align-self: flex-start;
+  display: inline-flex;
+  gap: 5px;
+  background: var(--jelly-white);
+  border: 2px solid var(--jelly-black);
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  padding: 12px 16px;
+}
+
+.jelly-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jelly-purple);
+  animation: jelly-bounce 1.2s infinite ease-in-out;
+}
+
+.jelly-typing span:nth-child(2) { animation-delay: 0.15s; }
+.jelly-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes jelly-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Input row */
+.jelly-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 3px solid var(--jelly-black);
+  background: var(--jelly-white);
+}
+
+.jelly-input {
+  flex: 1;
+  resize: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--jelly-black);
+  padding: 10px 14px;
+  border: 2px solid var(--jelly-black);
+  border-radius: 22px;
+  max-height: 96px;
+  line-height: 1.4;
+}
+
+.jelly-input:focus {
+  outline: none;
+  border-color: var(--jelly-purple);
+  box-shadow: 0 0 0 2px rgba(107, 63, 160, 0.25);
+}
+
+.jelly-send {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--jelly-yellow);
+  color: var(--jelly-black);
+  border: 2px solid var(--jelly-black);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 var(--jelly-black);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+}
+
+.jelly-send:hover:not(:disabled) {
+  background: var(--jelly-amber);
+}
+
+.jelly-send:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--jelly-black);
+}
+
+.jelly-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jelly-send:focus-visible {
+  outline: 3px solid var(--jelly-purple);
+  outline-offset: 2px;
+}
+
+/* Footer disclaimer */
+.jelly-footer {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #888;
+  line-height: 1.45;
+  padding: 6px 12px 10px;
+  background: var(--jelly-white);
+}
+
+.jelly-footer-fine {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #999;
+  margin-top: 3px;
+}
+
+.jelly-footer a {
+  color: var(--jelly-purple);
+  text-decoration: underline;
+}
+
+.jelly-footer a:hover {
+  color: var(--jelly-purple-dark);
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 480px) {
+  .jelly-panel {
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .jelly-launcher {
+    right: 16px;
+    bottom: 16px;
+  }
+}
