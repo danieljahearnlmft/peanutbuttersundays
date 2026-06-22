@@ -334,15 +334,16 @@
     overflow: hidden;
   }
 
-  /* Full-screen panel: fixed to the whole viewport, flex column so only the
-     message area scrolls. 100dvh accounts for mobile browser chrome.
-     Anchored with top/left/right (not inset) so the JS height override that
-     fits the panel above the keyboard doesn't fight a bottom:0 rule. */
+  /* Full-screen panel: fixed to the visible viewport, flex column so only the
+     message area scrolls. 100dvh is the no-JS fallback; when visualViewport is
+     available the widget pins top/left/width/height to the visual viewport in
+     JS so the panel fills exactly the area above the on-screen keyboard.
+     Anchored with top/left (not bottom) so the JS overrides don't fight a
+     bottom:0 rule. */
   .jelly-panel {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
     width: 100%;
     max-width: none;
     height: 100dvh;
@@ -363,6 +364,9 @@
   .jelly-messages {
     flex: 1;
     overflow-y: auto;
+    /* Don't let message-list scrolling chain to the page behind the panel. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Hide the launcher while the full-screen panel is open so it can't overlap

@@ -141,27 +141,56 @@
   }
 
   // ===== Mobile keyboard handling =====
-  // When the on-screen keyboard opens it shrinks the visual viewport but not the
-  // layout viewport, so a 100dvh fixed panel keeps its full height and the input
-  // bar ends up hidden/floating behind the keyboard. Resize the panel to the
-  // visible area (visualViewport) so the input stays just above the keyboard.
+  // When the on-screen keyboard opens it shrinks the *visual* viewport but not
+  // the *layout* viewport, and position:fixed elements stay anchored to the
+  // layout viewport. On iOS Safari the layout viewport is also scrolled
+  // (visualViewport.offsetTop > 0), so a fixed top:0 panel ends up floating
+  // above the visible area — the input bar slides into the middle and the page
+  // shows through below. Fix: pin the panel to the visual viewport explicitly,
+  // using offsetTop/offsetLeft + width/height, and keep it pinned on every
+  // resize/scroll of the visual viewport.
   function fitToViewport() {
-    if (!window.visualViewport) return;
-    // Desktop / wide screens: leave the CSS layout alone.
+    var vv = window.visualViewport;
+    if (!vv) return;
+    // Desktop / wide screens: leave the CSS layout (anchored bottom-right) alone.
     if (window.innerWidth > 600) {
-      panel.style.height = "";
+      clearPanelInlineLayout();
       return;
     }
-    // Anchor the panel to the top (CSS top:0) and only shrink its HEIGHT to the
-    // visible area above the keyboard. Don't touch top/bottom — moving them is
-    // what scrambled the layout on iOS.
-    panel.style.height = window.visualViewport.height + "px";
+    // Only act while the panel is actually open.
+    if (!panel.classList.contains("jelly-open")) return;
+
+    panel.style.top = vv.offsetTop + "px";
+    panel.style.left = vv.offsetLeft + "px";
+    panel.style.width = vv.width + "px";
+    panel.style.height = vv.height + "px";
+    panel.style.bottom = "auto";
+    panel.style.right = "auto";
     scrollToBottom();
+  }
+
+  function clearPanelInlineLayout() {
+    panel.style.top = "";
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.bottom = "";
+    panel.style.width = "";
+    panel.style.height = "";
   }
 
   function attachViewportFit() {
     if (!window.visualViewport) return;
-    vvHandler = fitToViewport;
+    // Coalesce the bursts of resize/scroll events iOS fires into one rAF update
+    // so the panel tracks the keyboard smoothly without layout thrash.
+    var scheduled = false;
+    vvHandler = function () {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(function () {
+        scheduled = false;
+        fitToViewport();
+      });
+    };
     window.visualViewport.addEventListener("resize", vvHandler);
     window.visualViewport.addEventListener("scroll", vvHandler);
     fitToViewport();
@@ -174,9 +203,7 @@
     }
     vvHandler = null;
     // Reset any inline sizing so desktop / next open starts clean.
-    panel.style.height = "";
-    panel.style.top = "";
-    panel.style.bottom = "";
+    clearPanelInlineLayout();
   }
 
   // ===== Rendering =====
