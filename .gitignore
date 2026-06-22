@@ -1,5 +1,8 @@
 .env
+feature/jelly-chatbot
 .dev.vars
 .netlify/
 .wrangler/
+.netifly/
+ main
 node_modules/

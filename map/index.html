@@ -139,6 +139,59 @@
       font-weight: 700;
     }
 
+    /* Toggle button is desktop-hidden; the legend always shows its body. */
+    .legend-toggle {
+      display: none;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: 'Bangers', cursive;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      color: var(--purple);
+      text-align: left;
+    }
+
+    @media (max-width: 600px) {
+      .map-legend {
+        max-width: 55%;
+        padding: 7px 9px;
+      }
+      .legend-toggle {
+        display: block;
+      }
+      .legend-toggle::after {
+        content: ' \25B8';
+      }
+      .legend-toggle[aria-expanded="true"]::after {
+        content: ' \25BE';
+      }
+      .legend-body {
+        display: none;
+        margin-top: 6px;
+      }
+      .legend-body.open {
+        display: block;
+      }
+      .legend-title {
+        font-size: 0.66rem;
+        margin-bottom: 6px;
+      }
+      .legend-row {
+        gap: 5px;
+        margin-bottom: 2px;
+      }
+      .legend-swatch {
+        width: 12px;
+        height: 10px;
+      }
+      .legend-row span {
+        font-size: 0.62rem;
+      }
+    }
+
     /* --- "CLICK FOR DATA" PILL --- */
     .map-cta-pill {
       position: absolute;
@@ -368,13 +421,16 @@
     <div id="map" class="map-container" aria-label="Choropleth map of Los Angeles regions shaded by the number of people experiencing homelessness." style="position:relative;">
       <div class="map-cta-pill" id="mapCtaPill">Click any region for the data</div>
       <div class="map-legend" aria-label="Map legend">
-        <div class="legend-title">People experiencing homelessness by LA region, 2025 LAHSA count</div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#E4D2F4;"></span><span>Under 5,000</span></div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#C6A6E3;"></span><span>5,000–6,000</span></div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#A87FD0;"></span><span>6,000–9,000</span></div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#8B5FBF;"></span><span>9,000–12,000</span></div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#6B34A0;"></span><span>12,000–15,000</span></div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#4E2484;"></span><span>15,000+</span></div>
+        <button type="button" class="legend-toggle" id="legendToggle" aria-expanded="false" aria-controls="legendBody">Legend</button>
+        <div class="legend-body" id="legendBody">
+          <div class="legend-title">People experiencing homelessness by LA region, 2025 LAHSA count</div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#E4D2F4;"></span><span>Under 5,000</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#C6A6E3;"></span><span>5,000–6,000</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#A87FD0;"></span><span>6,000–9,000</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#8B5FBF;"></span><span>9,000–12,000</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#6B34A0;"></span><span>12,000–15,000</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#4E2484;"></span><span>15,000+</span></div>
+        </div>
       </div>
     </div>
     <p style="text-align:center; margin-top:18px; font-size:0.8rem; font-weight:600; color:#888;">
@@ -564,7 +620,7 @@
         4: { text:"Metro",           at:[34.07,-118.30] },
         5: { text:"West LA",         at:[34.02,-118.46] },
         6: { text:"South LA",        at:[33.95,-118.28] },
-        7: { text:"East LA",         at:[33.99,-117.98] },
+        7: { text:"East LA",         at:[33.97,-118.02] },
         8: { text:"South Bay / Harbor", at:[33.80,-118.29] }
       };
       Object.values(LABELS).forEach(function(l) {
@@ -620,6 +676,14 @@
   document.getElementById('regionPanelClose').addEventListener('click', closeRegionPanel);
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeRegionPanel();
+  });
+
+  // --- COLLAPSIBLE LEGEND (mobile) ---
+  var legendToggle = document.getElementById('legendToggle');
+  var legendBody = document.getElementById('legendBody');
+  legendToggle.addEventListener('click', function() {
+    var open = legendBody.classList.toggle('open');
+    legendToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
 </script>
 
