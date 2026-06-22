@@ -21,6 +21,7 @@
 
   let panel, launcher, messagesEl, inputEl, sendBtn, closeBtn;
   let isSending = false;
+  let vvHandler = null;
 
   // ===== Build the DOM =====
   function buildWidget() {
@@ -103,6 +104,7 @@
     if (!messagesEl.hasChildNodes()) {
       addMessage("bot", GREETING);
     }
+    attachViewportFit();
     inputEl.focus();
   }
 
@@ -112,7 +114,49 @@
     launcher.classList.remove("jelly-hidden");
     // Restore background scroll.
     document.body.classList.remove("jelly-open");
+    detachViewportFit();
     launcher.focus();
+  }
+
+  // ===== Mobile keyboard handling =====
+  // When the on-screen keyboard opens it shrinks the visual viewport but not the
+  // layout viewport, so a 100dvh fixed panel keeps its full height and the input
+  // bar ends up hidden/floating behind the keyboard. Resize the panel to the
+  // visible area (visualViewport) so the input stays just above the keyboard.
+  function fitToViewport() {
+    if (!window.visualViewport) return;
+    // Desktop / wide screens: leave the CSS layout alone.
+    if (window.innerWidth > 600) {
+      panel.style.height = "";
+      panel.style.top = "";
+      panel.style.bottom = "";
+      return;
+    }
+    var vv = window.visualViewport;
+    panel.style.height = vv.height + "px";
+    panel.style.top = vv.offsetTop + "px";
+    panel.style.bottom = "auto";
+    scrollToBottom();
+  }
+
+  function attachViewportFit() {
+    if (!window.visualViewport) return;
+    vvHandler = fitToViewport;
+    window.visualViewport.addEventListener("resize", vvHandler);
+    window.visualViewport.addEventListener("scroll", vvHandler);
+    fitToViewport();
+  }
+
+  function detachViewportFit() {
+    if (window.visualViewport && vvHandler) {
+      window.visualViewport.removeEventListener("resize", vvHandler);
+      window.visualViewport.removeEventListener("scroll", vvHandler);
+    }
+    vvHandler = null;
+    // Reset any inline sizing so desktop / next open starts clean.
+    panel.style.height = "";
+    panel.style.top = "";
+    panel.style.bottom = "";
   }
 
   // ===== Rendering =====
