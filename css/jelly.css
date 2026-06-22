@@ -329,14 +329,20 @@
   /* Lock background scroll while the full-screen panel is open
      (class set on <body> by the widget). Desktop is left unchanged. */
   body.jelly-open {
+    position: fixed;
+    width: 100%;
     overflow: hidden;
   }
 
   /* Full-screen panel: fixed to the whole viewport, flex column so only the
-     message area scrolls. 100dvh accounts for mobile browser chrome. */
+     message area scrolls. 100dvh accounts for mobile browser chrome.
+     Anchored with top/left/right (not inset) so the JS height override that
+     fits the panel above the keyboard doesn't fight a bottom:0 rule. */
   .jelly-panel {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     max-width: none;
     height: 100dvh;
