@@ -128,14 +128,12 @@
     // Desktop / wide screens: leave the CSS layout alone.
     if (window.innerWidth > 600) {
       panel.style.height = "";
-      panel.style.top = "";
-      panel.style.bottom = "";
       return;
     }
-    var vv = window.visualViewport;
-    panel.style.height = vv.height + "px";
-    panel.style.top = vv.offsetTop + "px";
-    panel.style.bottom = "auto";
+    // Anchor the panel to the top (CSS top:0) and only shrink its HEIGHT to the
+    // visible area above the keyboard. Don't touch top/bottom — moving them is
+    // what scrambled the layout on iOS.
+    panel.style.height = window.visualViewport.height + "px";
     scrollToBottom();
   }
 
