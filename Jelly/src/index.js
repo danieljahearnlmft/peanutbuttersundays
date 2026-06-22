@@ -3,7 +3,7 @@
 // API key never reaches the browser. Deploy with `npx wrangler deploy`.
 
 // The canonical origin used as the CORS fallback for disallowed callers.
-const CANONICAL_ORIGIN = "https://peanutbuttersundays.org";
+const CANONICAL_ORIGIN = "https://peanutbuttersundays.com";
 
 // Allow the production site, any Netlify domain (live + deploy previews), and
 // localhost during development. A missing Origin (non-browser caller) is allowed.
@@ -11,6 +11,7 @@ function isAllowedOrigin(origin) {
   if (!origin) return true;
   try {
     const host = new URL(origin).hostname;
+    if (host === "peanutbuttersundays.com" || host === "www.peanutbuttersundays.com") return true;
     if (host === "peanutbuttersundays.org" || host === "www.peanutbuttersundays.org") return true;
     if (host.endsWith(".netlify.app")) return true;
     if (host === "localhost" || host === "127.0.0.1") return true;
