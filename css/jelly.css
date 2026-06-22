@@ -352,6 +352,9 @@
     border-radius: 0;
     border: none;
     box-shadow: none;
+    /* JS pins the panel to the visual viewport via a translate() transform;
+       anchor the transform to the top-left corner. */
+    transform-origin: 0 0;
   }
 
   .jelly-header,
