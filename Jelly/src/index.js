@@ -2,12 +2,23 @@
 // Runs as a Cloudflare Worker and proxies to the DeepSeek API so the
 // API key never reaches the browser. Deploy with `npx wrangler deploy`.
 
-const ALLOWED_ORIGINS = [
-  "https://peanutbuttersundays.org",
-  "https://www.peanutbuttersundays.org",
-  "http://localhost:8000",
-  "http://127.0.0.1:5500",
-];
+// The canonical origin used as the CORS fallback for disallowed callers.
+const CANONICAL_ORIGIN = "https://peanutbuttersundays.org";
+
+// Allow the production site, any Netlify domain (live + deploy previews), and
+// localhost during development. A missing Origin (non-browser caller) is allowed.
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  try {
+    const host = new URL(origin).hostname;
+    if (host === "peanutbuttersundays.org" || host === "www.peanutbuttersundays.org") return true;
+    if (host.endsWith(".netlify.app")) return true;
+    if (host === "localhost" || host === "127.0.0.1") return true;
+  } catch {
+    return false;
+  }
+  return false;
+}
 
 // PBS facts Jelly is allowed to share. Paste real content over the TODO blocks.
 const PBS_KNOWLEDGE = `
@@ -79,7 +90,7 @@ function corsHeaders(origin) {
   // Echo the origin only when it is on the allowlist; otherwise fall back to
   // the canonical production origin so browsers get a valid (but non-matching)
   // CORS header for disallowed callers.
-  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allow = origin && isAllowedOrigin(origin) ? origin : CANONICAL_ORIGIN;
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -108,7 +119,7 @@ export default {
 
     // Reject browser requests from origins that are not on the allowlist.
     // (A missing Origin header means a non-browser caller, which we allow.)
-    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    if (origin && !isAllowedOrigin(origin)) {
       return new Response(JSON.stringify({ error: "Origin not allowed" }), {
         status: 403,
         headers,
