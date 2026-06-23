@@ -363,6 +363,10 @@
 
   .jelly-messages {
     flex: 1;
+    /* min-height:0 lets this flex child actually shrink when the panel is short
+       (keyboard open). Without it the list refuses to shrink below its content
+       and shoves the input bar past the panel bottom — the floating-input bug. */
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
