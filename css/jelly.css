@@ -377,6 +377,12 @@
     padding-top: 8px;
     padding-bottom: 8px;
   }
+  .jelly-panel.jelly-kb .jelly-messages {
+    padding: 10px 12px;
+  }
+  .jelly-panel.jelly-kb .jelly-input-row {
+    padding: 8px 10px;
+  }
 
   .jelly-messages {
     flex: 1;

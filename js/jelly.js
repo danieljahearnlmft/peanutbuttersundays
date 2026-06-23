@@ -18,7 +18,7 @@
 
   // Bump this with every change so you can confirm on-device which build you're
   // running (shown tiny in the footer, and must match ?v=N in the HTML).
-  const VERSION = "v8";
+  const VERSION = "v9";
 
   // In-memory conversation history (sent to the backend each turn).
   const history = [];
@@ -172,12 +172,21 @@
     panel.style.left = vv.offsetLeft + "px";
     panel.style.width = vv.width + "px";
     panel.style.height = vv.height + "px";
-
-    // Keyboard up = little vertical room. Hide the consent + footer chrome (CSS)
-    // so the messages and input aren't smooshed.
-    var keyboardOpen = window.innerHeight - vv.height > 120;
-    panel.classList.toggle("jelly-kb", keyboardOpen);
     scrollToBottom();
+  }
+
+  // On mobile, the input being focused means the keyboard is open — a far more
+  // reliable signal than measuring viewport heights (iOS sometimes shrinks
+  // innerHeight too). The jelly-kb class hides the consent + footer chrome (CSS)
+  // so the chat isn't smooshed into the space above the keyboard.
+  function onInputFocus() {
+    if (window.innerWidth <= 600) panel.classList.add("jelly-kb");
+    refitSoon();
+  }
+
+  function onInputBlur() {
+    panel.classList.remove("jelly-kb");
+    refitSoon();
   }
 
   function clearPanelInlineLayout() {
@@ -213,9 +222,10 @@
     };
     window.visualViewport.addEventListener("resize", vvHandler);
     window.visualViewport.addEventListener("scroll", vvHandler);
-    // Re-fit when the focused field changes or the device rotates.
+    // Re-fit / toggle keyboard chrome when focus changes or the device rotates.
     window.addEventListener("orientationchange", refitSoon);
-    inputEl.addEventListener("focus", refitSoon);
+    inputEl.addEventListener("focus", onInputFocus);
+    inputEl.addEventListener("blur", onInputBlur);
     refitSoon();
   }
 
@@ -225,7 +235,8 @@
       window.visualViewport.removeEventListener("scroll", vvHandler);
     }
     window.removeEventListener("orientationchange", refitSoon);
-    inputEl.removeEventListener("focus", refitSoon);
+    inputEl.removeEventListener("focus", onInputFocus);
+    inputEl.removeEventListener("blur", onInputBlur);
     vvHandler = null;
     // Reset any inline sizing so desktop / next open starts clean.
     clearPanelInlineLayout();
