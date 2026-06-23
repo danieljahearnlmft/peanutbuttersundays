@@ -335,14 +335,15 @@
   }
 
   /* Full-screen panel, flex column so only the message area scrolls. 100dvh is
-     the no-JS / Android fallback (with interactive-widget=resizes-content the
-     keyboard shrinks the layout viewport, so this fits natively). On iOS the JS
-     pins width/height to the visual viewport and offsets with a translate()
-     transform so the panel fills exactly the area above the keyboard. */
+     the base/Android height (interactive-widget=resizes-content makes the
+     keyboard shrink the layout viewport, so it fits natively). On iOS the JS
+     shrinks height to visualViewport.height when the keyboard opens. */
   .jelly-panel {
     position: fixed;
     top: 0;
     left: 0;
+    right: auto;          /* reset desktop bottom-right anchoring so it can't leak */
+    bottom: auto;
     width: 100%;
     max-width: none;
     height: 100dvh;
@@ -351,7 +352,6 @@
     border-radius: 0;
     border: none;
     box-shadow: none;
-    transform-origin: 0 0;
   }
 
   .jelly-header,

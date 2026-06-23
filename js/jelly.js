@@ -106,7 +106,10 @@
       addMessage("bot", GREETING);
     }
     attachViewportFit();
-    inputEl.focus();
+    // Only auto-focus on desktop. On mobile, focusing here pops the keyboard
+    // immediately and the panel opens in the cramped keyboard-up state; let the
+    // user read the greeting and tap to type instead.
+    if (window.innerWidth > 600) inputEl.focus();
   }
 
   function closePanel() {
@@ -119,19 +122,17 @@
   }
 
   // ===== Mobile keyboard handling =====
-  // When the on-screen keyboard opens it shrinks the *visual* viewport but not
-  // the *layout* viewport, and position:fixed elements stay anchored to the
-  // layout viewport. On iOS Safari the layout viewport is also scrolled
-  // (visualViewport.offsetTop > 0), so a fixed top:0 panel keeps its full
-  // 100dvh height and floats above the visible area — the input bar slides
-  // into the middle and the page shows through below.
+  // 100dvh doesn't shrink when the on-screen keyboard opens, so the fixed panel
+  // keeps its full height and the input bar ends up behind the keyboard. The
+  // panel is anchored top-left (CSS), so the ONLY thing we need is to shrink its
+  // height to the area above the keyboard (visualViewport.height).
   //
-  // Fix: pin the panel to the *visual* viewport using the canonical MDN
-  // pattern — size it to visualViewport.width/height and offset it with a
-  // transform of (offsetLeft, offsetTop). A transform is more reliable than
-  // setting top/left on iOS, where fixed-element insets misbehave while the
-  // keyboard is up. Re-applied on every visualViewport resize/scroll so the
-  // panel tracks the keyboard as it animates in and out.
+  // We deliberately do NOT translate/offset the panel: iOS Safari is
+  // inconsistent about whether position:fixed is relative to the layout or the
+  // visual viewport while the keyboard is up, so any offset double-counts on
+  // some versions and floats the panel. Instead we force the page scroll back
+  // to 0 so the visual and layout viewports share an origin, and a plain
+  // top:0 + height works the same on every iOS version.
   function fitToViewport() {
     var vv = window.visualViewport;
     if (!vv) return;
@@ -143,10 +144,9 @@
     // Only act while the panel is actually open.
     if (!panel.classList.contains("jelly-open")) return;
 
-    panel.style.width = vv.width + "px";
+    // Kill any keyboard-induced page scroll so top:0 means the visible top.
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
     panel.style.height = vv.height + "px";
-    panel.style.transform =
-      "translate(" + vv.offsetLeft + "px, " + vv.offsetTop + "px)";
     scrollToBottom();
   }
 
