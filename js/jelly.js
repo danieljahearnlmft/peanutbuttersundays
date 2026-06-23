@@ -22,7 +22,6 @@
   let panel, launcher, messagesEl, inputEl, sendBtn, closeBtn;
   let isSending = false;
   let vvHandler = null;
-  let savedScrollY = 0;
 
   // ===== Build the DOM =====
   function buildWidget() {
@@ -98,8 +97,9 @@
     panel.classList.add("jelly-open");
     panel.setAttribute("aria-hidden", "false");
     launcher.classList.add("jelly-hidden");
-    // Lock the page in place (mobile) so it can't scroll or show behind the panel.
-    lockScroll();
+    // Lock the page behind the full-screen panel (mobile). overflow:hidden only —
+    // no position:fixed body hack; that fought the fixed panel and scrambled it.
+    document.documentElement.classList.add("jelly-lock");
 
     // Greeting on first open.
     if (!messagesEl.hasChildNodes()) {
@@ -114,30 +114,8 @@
     panel.setAttribute("aria-hidden", "true");
     launcher.classList.remove("jelly-hidden");
     detachViewportFit();
-    // Restore the page and its scroll position.
-    unlockScroll();
+    document.documentElement.classList.remove("jelly-lock");
     launcher.focus();
-  }
-
-  // ===== Page scroll lock (mobile) =====
-  function isMobile() {
-    return window.innerWidth <= 600;
-  }
-
-  function lockScroll() {
-    if (!isMobile()) return;
-    savedScrollY = window.scrollY || window.pageYOffset || 0;
-    document.body.classList.add("jelly-open");
-    document.body.style.top = "-" + savedScrollY + "px";
-  }
-
-  function unlockScroll() {
-    const wasLocked = document.body.classList.contains("jelly-open");
-    document.body.classList.remove("jelly-open");
-    document.body.style.top = "";
-    if (wasLocked) {
-      window.scrollTo(0, savedScrollY);
-    }
   }
 
   // ===== Mobile keyboard handling =====
