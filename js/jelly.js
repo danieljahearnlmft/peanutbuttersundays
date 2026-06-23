@@ -162,6 +162,11 @@
     panel.style.left = vv.offsetLeft + "px";
     panel.style.width = vv.width + "px";
     panel.style.height = vv.height + "px";
+
+    // Keyboard up = little vertical room. Hide the consent + footer chrome (CSS)
+    // so the messages and input aren't smooshed.
+    var keyboardOpen = window.innerHeight - vv.height > 120;
+    panel.classList.toggle("jelly-kb", keyboardOpen);
     scrollToBottom();
   }
 
@@ -170,6 +175,7 @@
     panel.style.left = "";
     panel.style.width = "";
     panel.style.height = "";
+    panel.classList.remove("jelly-kb");
   }
 
   // iOS doesn't always report final viewport geometry on the first resize event

@@ -368,6 +368,16 @@
     flex-shrink: 0;
   }
 
+  /* Keyboard up: reclaim vertical space so the chat isn't smooshed. */
+  .jelly-panel.jelly-kb .jelly-consent,
+  .jelly-panel.jelly-kb .jelly-footer {
+    display: none;
+  }
+  .jelly-panel.jelly-kb .jelly-header {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
   .jelly-messages {
     flex: 1;
     /* min-height:0 lets this flex child actually shrink when the panel is short
