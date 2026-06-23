@@ -16,6 +16,10 @@
   const ERROR_REPLY =
     "Jelly is having trouble right now, please try again.";
 
+  // Bump this with every change so you can confirm on-device which build you're
+  // running (shown tiny in the footer, and must match ?v=N in the HTML).
+  const VERSION = "v8";
+
   // In-memory conversation history (sent to the backend each turn).
   const history = [];
 
@@ -66,6 +70,12 @@
     inputEl = panel.querySelector(".jelly-input");
     sendBtn = panel.querySelector(".jelly-send");
     closeBtn = panel.querySelector(".jelly-close");
+
+    // Tiny build stamp in the footer so you can confirm the version on-device.
+    panel.querySelector(".jelly-footer-fine").insertAdjacentHTML(
+      "beforeend",
+      ' <span style="opacity:.45">' + VERSION + "</span>"
+    );
 
     launcher.addEventListener("click", openPanel);
     closeBtn.addEventListener("click", closePanel);
