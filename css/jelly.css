@@ -326,12 +326,19 @@
 
 /* ===== Mobile ===== */
 @media (max-width: 600px) {
-  /* Lock the page behind the full-screen panel. overflow:hidden is enough — the
-     opaque panel covers everything, so there's nothing to scroll or show
-     through. No position:fixed body hack (that was the bug). */
+  /* Lock the page behind the full-screen panel. overflow:hidden alone does NOT
+     stop scrolling on iOS Safari, so lock <body> with position:fixed; the JS
+     stores/restores the scroll offset. This also stops iOS from scrolling the
+     document when the input focuses (which dragged the panel off-screen). */
   html.jelly-lock,
   html.jelly-lock body {
     overflow: hidden;
+  }
+  html.jelly-lock body {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
   }
 
   /* Full-screen panel, flex column so only the message area scrolls. 100dvh is

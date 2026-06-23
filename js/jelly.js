@@ -97,9 +97,7 @@
     panel.classList.add("jelly-open");
     panel.setAttribute("aria-hidden", "false");
     launcher.classList.add("jelly-hidden");
-    // Lock the page behind the full-screen panel (mobile). overflow:hidden only —
-    // no position:fixed body hack; that fought the fixed panel and scrambled it.
-    document.documentElement.classList.add("jelly-lock");
+    lockScroll();
 
     // Greeting on first open.
     if (!messagesEl.hasChildNodes()) {
@@ -117,22 +115,38 @@
     panel.setAttribute("aria-hidden", "true");
     launcher.classList.remove("jelly-hidden");
     detachViewportFit();
-    document.documentElement.classList.remove("jelly-lock");
+    unlockScroll();
     launcher.focus();
   }
 
+  // ===== Page scroll lock (mobile) =====
+  // overflow:hidden does NOT stop scrolling on iOS Safari. The reliable lock is
+  // position:fixed on <body> with the scroll offset stored, restored on close.
+  // It also stops iOS from scrolling the document when the input focuses, which
+  // is what dragged the fixed panel off-screen.
+  var savedScrollY = 0;
+
+  function lockScroll() {
+    if (window.innerWidth > 600) return;
+    savedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.classList.add("jelly-lock");
+    document.body.style.top = -savedScrollY + "px";
+  }
+
+  function unlockScroll() {
+    if (!document.documentElement.classList.contains("jelly-lock")) return;
+    document.documentElement.classList.remove("jelly-lock");
+    document.body.style.top = "";
+    window.scrollTo(0, savedScrollY);
+  }
+
   // ===== Mobile keyboard handling =====
-  // 100dvh doesn't shrink when the on-screen keyboard opens, so the fixed panel
-  // keeps its full height and the input bar ends up behind the keyboard. The
-  // panel is anchored top-left (CSS), so the ONLY thing we need is to shrink its
-  // height to the area above the keyboard (visualViewport.height).
-  //
-  // We deliberately do NOT translate/offset the panel: iOS Safari is
-  // inconsistent about whether position:fixed is relative to the layout or the
-  // visual viewport while the keyboard is up, so any offset double-counts on
-  // some versions and floats the panel. Instead we force the page scroll back
-  // to 0 so the visual and layout viewports share an origin, and a plain
-  // top:0 + height works the same on every iOS version.
+  // 100dvh doesn't shrink when the keyboard opens, so the fixed panel keeps full
+  // height and the input ends up behind the keyboard. With <body> locked
+  // (position:fixed) the document can't scroll, so visualViewport.offsetTop is a
+  // stable measure of where the visible area starts. Pin the panel to that
+  // visible rectangle: top/left = offset, width/height = the visual viewport.
+  // This keeps it filling exactly the area above the keyboard.
   function fitToViewport() {
     var vv = window.visualViewport;
     if (!vv) return;
@@ -144,16 +158,18 @@
     // Only act while the panel is actually open.
     if (!panel.classList.contains("jelly-open")) return;
 
-    // Kill any keyboard-induced page scroll so top:0 means the visible top.
-    if (window.scrollY !== 0) window.scrollTo(0, 0);
+    panel.style.top = vv.offsetTop + "px";
+    panel.style.left = vv.offsetLeft + "px";
+    panel.style.width = vv.width + "px";
     panel.style.height = vv.height + "px";
     scrollToBottom();
   }
 
   function clearPanelInlineLayout() {
+    panel.style.top = "";
+    panel.style.left = "";
     panel.style.width = "";
     panel.style.height = "";
-    panel.style.transform = "";
   }
 
   // iOS doesn't always report final viewport geometry on the first resize event
