@@ -10,7 +10,7 @@
   <meta property="og:image" content="https://peanutbuttersundays.netlify.app/images/logo.png" />
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
   <link rel="stylesheet" href="/css/main.css" />
-  <link rel="stylesheet" href="/css/jelly.css" />
+  <link rel="stylesheet" href="/css/jelly.css?v=4" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
     .map-hero {
@@ -435,6 +435,14 @@
       width: 100%;
       text-align: center;
     }
+    .rp-impact-note {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #6B3FA0;
+      text-align: center;
+      line-height: 1.4;
+      margin: 10px 0 0;
+    }
 
     @media (max-width: 640px) {
       .region-panel {
@@ -553,7 +561,7 @@
     <!-- IMPACT CALCULATOR -->
     <div class="rp-impact">
       <h3 class="rp-subhead">Your impact, right now 💥</h3>
-      <p class="rp-impact-lead">Drag to see what your meal drop would do in <span id="rpImpactRegion">this area</span>.</p>
+      <p class="rp-impact-lead">Drag to picture what your meals could do for neighbors like the ones in <span id="rpImpactRegion">this area</span>.</p>
       <input type="range" id="rpMeals" class="rp-slider" min="10" max="2000" step="10" value="120" aria-label="Number of meals to bring" />
       <div class="rp-impact-headline">
         <span class="rp-impact-num" id="rpMealsNum">120</span>
@@ -562,6 +570,7 @@
       <div class="rp-impact-bar"><div class="rp-impact-fill" id="rpImpactFill"></div></div>
       <p class="rp-impact-reward" id="rpImpactReward"></p>
       <a href="/donate" class="btn btn-primary rp-impact-cta" id="rpImpactCta">Fund 120 meals →</a>
+      <p class="rp-impact-note">Your gift feeds neighbors across all of LA, wherever the need is greatest, not just here.</p>
     </div>
 
     <h3 class="rp-subhead">Areas that need the most help</h3>
@@ -796,12 +805,12 @@
   var impactRegionName = 'this area';
 
   var IMPACT_TIERS = [
-    { p: 0,  msg: function(m, r){ return 'A hot meal for ' + m + ' neighbors. Every single one matters. 🥪'; } },
-    { p: 2,  msg: function(m, r){ return m + ' meals — a whole block eats tonight. People feel this. 🙌'; } },
-    { p: 5,  msg: function(m, r){ return 'A full encampment, fed in one drop. You’re the reason. 🌟'; } },
-    { p: 10, msg: function(m, r){ return 'Real scale now — hundreds reached across ' + r + '. 🔥'; } },
-    { p: 25, msg: function(m, r){ return 'Huge. A massive share of ' + r + ' covered by you alone. 💜'; } },
-    { p: 50, msg: function(m, r){ return 'Legendary. You’d feed half of ' + r + ' in a single day. 🏆'; } }
+    { p: 0,  msg: function(m){ return 'A hot meal for ' + m + ' neighbors. Every single one counts. 🥪'; } },
+    { p: 2,  msg: function(m){ return m + ' meals. A whole block eats tonight, and people feel it. 🙌'; } },
+    { p: 5,  msg: function(m){ return 'A full encampment fed in one drop. That is real change. 🌟'; } },
+    { p: 10, msg: function(m){ return 'Now you are moving at scale. Hundreds of people reached. 🔥'; } },
+    { p: 25, msg: function(m){ return 'Huge. That many meals lifts a whole community. 💜'; } },
+    { p: 50, msg: function(m){ return 'Legendary. Enough to feed thousands of neighbors across LA. 🏆'; } }
   ];
 
   function pickTier(pct) {
@@ -822,7 +831,7 @@
     document.getElementById('rpImpactFill').style.width = pct + '%';
     document.getElementById('rpImpactRegion').textContent = impactRegionName;
     document.getElementById('rpImpactCta').textContent = 'Fund ' + meals.toLocaleString() + ' meals →';
-    document.getElementById('rpImpactReward').textContent = pickTier(pct).msg(meals.toLocaleString(), impactRegionName);
+    document.getElementById('rpImpactReward').textContent = pickTier(pct).msg(meals.toLocaleString());
 
     // Re-trigger the pulse animation on the number.
     numEl.classList.remove('pulse');
@@ -855,7 +864,7 @@
 </script>
 
 <!-- Jelly chat widget -->
-<script src="/js/jelly.js" defer></script>
+<script src="/js/jelly.js?v=4" defer></script>
 
 </body>
 </html>
